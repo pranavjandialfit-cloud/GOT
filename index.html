@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+<title>GOT · Style Mein Fit</title>
+<meta name="description" content="Your transformation, live. Your weekly review, scores and progress.">
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#141110">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="GOT">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+
+<style>
+  html,body{margin:0;padding:0;background:#141110;color:#F6F1EA;-webkit-text-size-adjust:100%}
+  #root{min-height:100dvh}
+  /* shown only if the bundle never arrives */
+  #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+        font:500 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#A5978A;text-align:center;padding:24px}
+  #boot .r{width:44px;height:44px;border-radius:50%;border:3px solid #2E2620;border-top-color:#E8763A;animation:s .9s linear infinite}
+  @keyframes s{to{transform:rotate(360deg)}}
+  #upd{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:90;max-width:406px;margin:0 auto;
+       display:none;gap:10px;align-items:center;background:#1C1714;border:1px solid #40342B;border-radius:14px;padding:12px 13px;
+       box-shadow:0 18px 40px rgba(0,0,0,.6);font:500 13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#F6F1EA}
+  #upd button{margin-left:auto;flex:0 0 auto;background:#E8763A;border:none;color:#1a0f08;font-weight:700;font-size:13px;
+              padding:8px 13px;border-radius:10px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div id="root">
+  <div id="boot"><div class="r"></div><div id="bootmsg">Loading your dashboard…</div></div>
+</div>
+
+<div id="upd"><span>A new version is ready.</span><button type="button" id="updbtn">Reload</button></div>
+
+<script>
+  window.GOT_CONFIG = {
+    SUPA_URL:  "https://fvdibqiahemrejhsaepg.supabase.co",
+    SUPA_ANON: "sb_publishable_kX5pkvhHkdrkbZSssw0DmA_WHirrZEx"
+  };
+  // If the bundle fails to load at all, say so instead of spinning forever.
+  setTimeout(function () {
+    var m = document.getElementById("bootmsg");
+    if (m && !window.__GOT_SB) m.textContent = "Still loading… if this doesn't clear, check your connection and pull down to refresh.";
+  }, 9000);
+</script>
+
+<!-- ============================================================
+     THE ONLY PLACE THE VERSION IS WRITTEN IN THIS FILE.
+     Bump ?v= on every release. It is the browser's cache key, and the
+     service worker reads it back from here for its own cache name, so
+     the two can never disagree.
+     ============================================================ -->
+<script src="got-app.js?v=1.1.0"></script>
+
+<script>
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  var reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  window.addEventListener("load", function () {
+    /* The version lives in exactly one place: the ?v= on the script tag above.
+       Read it back out and hand it to the worker, so its cache name always
+       matches the bundle this page loaded. */
+    var tag = document.querySelector('script[src*="got-app.js"]');
+    var m = tag && (tag.getAttribute("src") || "").match(/[?&]v=([^&]+)/);
+    var v = m ? m[1] : "0";
+    navigator.serviceWorker.register("sw.js?v=" + v).then(function (reg) {
+      function offer(worker) {
+        if (!worker) return;
+        worker.addEventListener("statechange", function () {
+          // "installed" with an existing controller means an update is waiting
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            var bar = document.getElementById("upd");
+            bar.style.display = "flex";
+            document.getElementById("updbtn").onclick = function () {
+              bar.style.display = "none";
+              worker.postMessage({ type: "SKIP_WAITING" });
+            };
+          }
+        });
+      }
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        var bar = document.getElementById("upd");
+        bar.style.display = "flex";
+        document.getElementById("updbtn").onclick = function () {
+          bar.style.display = "none";
+          reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        };
+      }
+      reg.addEventListener("updatefound", function () { offer(reg.installing); });
+    }).catch(function (e) { try { console.debug("sw", e && e.message); } catch (x) {} });
+  });
+})();
+</script>
+
+</body>
+</html>
