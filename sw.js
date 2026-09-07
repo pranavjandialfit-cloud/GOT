@@ -15,7 +15,14 @@ var VERSION = (function () {
   try { return new URL(self.location.href).searchParams.get("v") || "0"; }
   catch (e) { return "0"; }
 })();
-var CACHE = "got-v" + VERSION;
+
+/* CacheStorage is shared across the whole origin, not per service-worker scope.
+   So the beta copy at /beta/ and the live one at / would otherwise fight over
+   the same cache name, and each would delete the other's on activate. The
+   channel comes from this file's own path, so nothing needs configuring. */
+var CHANNEL = self.location.pathname.indexOf("/beta/") === 0 ? "beta" : "live";
+var PREFIX  = "got-" + CHANNEL + "-";
+var CACHE   = PREFIX + "v" + VERSION;
 
 /* The shell, cached on install so the very first offline open already works. */
 var SHELL = [
@@ -42,7 +49,8 @@ self.addEventListener("activate", function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (k) {
-        if (k !== CACHE) return caches.delete(k);
+        // only ever tidy up our own channel's old caches
+        if (k.indexOf(PREFIX) === 0 && k !== CACHE) return caches.delete(k);
       }));
     }).then(function () { return self.clients.claim(); })
   );
