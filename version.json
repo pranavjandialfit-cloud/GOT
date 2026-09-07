@@ -1,5 +1,5 @@
 {
-  "v": "1.1.0",
-  "built": "2026-09-06",
-  "notes": "Own origin on GitHub Pages, installable PWA with offline shell, iOS input zoom fix, activity logging, admin last-seen + version row, exact blood test dates, two-cycles-in-a-month period fix, medical history from the Weekly tab"
+  "v": "1.1.3",
+  "built": "2026-09-07",
+  "notes": "Charts now show the date of each point in the tooltip; extra breathing room above the 'your #1 fix this week' card"
 }
