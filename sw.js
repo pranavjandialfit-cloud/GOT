@@ -30,7 +30,15 @@ var SHELL = [
   "./index.html",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/apple-touch-icon.png",
+  /* The bundle is ~1 MB. Without this it is only cached on the first request,
+     which is the first launch from the home screen - 2 s on fast 4G, 5 s on
+     slow 4G, with nothing but the OS launch screen on top of it. Caching it
+     during the browser visit means the first launch is already warm. */
+  "./got-app.js?v=" + VERSION,
+  /* The logo lives on our own origin now, not a CDN. Root-relative so the same
+     one file serves both / and /beta/. Cached here so offline keeps it. */
+  "/img/smf-logo-dark.png"
 ];
 
 self.addEventListener("install", function (e) {
@@ -81,7 +89,18 @@ self.addEventListener("fetch", function (e) {
     e.respondWith(
       caches.open(CACHE).then(function (c) {
         return fromNetwork(req, c).catch(function () {
-          return c.match("./index.html").then(function (r) { return r || c.match("./"); });
+          return c.match("./index.html").then(function (r) {
+            return r || c.match("./");
+          }).then(function (r) {
+            /* respondWith(undefined) renders a blank page. If the shell was
+               never cached, hand back a real page rather than nothing. */
+            return r || new Response(
+              "<!doctype html><meta charset=utf-8><meta name=viewport content=\"width=device-width,initial-scale=1\">" +
+              "<body style=\"margin:0;background:#0a0807;color:#A5978A;font:500 14px/1.6 -apple-system,system-ui,sans-serif;" +
+              "display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px\">" +
+              "<div>You're offline.<br>Open this again once you have a connection.</div>",
+              { headers: { "content-type": "text/html; charset=utf-8" } });
+          });
         });
       })
     );
@@ -112,8 +131,8 @@ self.addEventListener("fetch", function (e) {
   e.respondWith(
     caches.open(CACHE).then(function (c) {
       return c.match(req).then(function (hit) {
-        var net = fromNetwork(req, c).catch(function () { return hit; });
-        return hit || net;
+        if (hit) return hit;
+        return fromNetwork(req, c).catch(function () { return hit; });
       });
     })
   );
