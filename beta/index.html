@@ -13,7 +13,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="SMF β">
 <link rel="apple-touch-icon" sizes="180x180" href="../icons/apple-touch-icon.png">
 
@@ -85,55 +85,6 @@
 
 <div id="upd"><span>A new version is ready.</span><button type="button" id="updbtn">Reload</button></div>
 
-<script>
-/* THE iOS STANDALONE SHORTFALL.
-   Measured 8 Sep 2026 on three iPhones running the installed app:
-
-     device        screen   shell    short
-     iPhone Air     912pt   844pt     68pt
-     iPhone 13 Pro  844pt   797pt     47pt
-     iPhone 17 Pro  874pt   812pt     62pt
-
-   The shortfall equals that device's status-bar height every time. With
-   viewport-fit=cover + black-translucent iOS starts the layout viewport at
-   y=0 but sizes it screen-minus-status-bar, so the missing strip lands at the
-   bottom and the page canvas shows through under the tab bar.
-
-   This does NOT blindly apply that offset. It measures where the shell
-   actually ends, compares against screen.height, and corrects only the real
-   difference. It is off unless all of these hold:
-     - running as an installed app (display-mode: standalone, or iOS standalone)
-     - the shell genuinely ends above the bottom of the screen
-     - the gap is a plausible status-bar size (1..140px)
-   In a browser tab, or if a future iOS stops doing this, it does nothing. */
-(function () {
-  function standalone() {
-    try {
-      return (window.matchMedia && matchMedia("(display-mode: standalone)").matches)
-             || window.navigator.standalone === true;
-    } catch (e) { return false; }
-  }
-  function fitShell() {
-    try {
-      var root = document.documentElement;
-      if (!standalone()) { root.style.removeProperty("--shellpad"); return; }
-      var el = document.querySelector(".phone");
-      if (!el) return;
-      root.style.setProperty("--shellpad", "0px");          // measure undistorted
-      var bottom = el.getBoundingClientRect().bottom;
-      var screenH = (window.screen && window.screen.height) || 0;
-      var gap = Math.round(screenH - bottom);
-      if (!(gap > 0 && gap <= 140)) gap = 0;                 // clamp; 0 = no change
-      root.style.setProperty("--shellpad", gap + "px");
-    } catch (e) {}
-  }
-  addEventListener("resize", fitShell);
-  addEventListener("orientationchange", function () { setTimeout(fitShell, 350); });
-  addEventListener("pageshow", fitShell);
-  /* .phone only exists once the app has rendered */
-  [400, 1200, 2500, 5000].forEach(function (t) { setTimeout(fitShell, t); });
-})();
-</script>
 
 <script>
   window.GOT_CONFIG = {
@@ -165,7 +116,7 @@
      service worker reads it back from here for its own cache name, so
      the two can never disagree.
      ============================================================ -->
-<script src="got-app.js?v=1.1.6-beta"></script>
+<script src="got-app.js?v=1.1.7-beta"></script>
 
 <script>
 (function () {

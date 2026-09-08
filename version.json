@@ -1,5 +1,5 @@
 {
-  "v": "1.1.6",
+  "v": "1.1.7",
   "built": "2026-09-08",
-  "notes": "Reverted the height override that broke Safari; admin header no longer runs under the status bar; the installed-app bottom strip is now measured and corrected"
+  "notes": "iOS installed app fills the screen: the status bar is reserved by iOS instead of being drawn under, which is what was leaving a strip at the bottom"
 }
