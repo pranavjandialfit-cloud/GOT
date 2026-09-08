@@ -1,5 +1,5 @@
 {
-  "v": "1.1.5",
+  "v": "1.1.6",
   "built": "2026-09-08",
-  "notes": "Installed app now fills the screen on iOS - the shell reads the real window height, and the canvas behind it is painted the tab bar's colour"
+  "notes": "Reverted the height override that broke Safari; admin header no longer runs under the status bar; the installed-app bottom strip is now measured and corrected"
 }
