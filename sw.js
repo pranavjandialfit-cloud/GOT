@@ -68,6 +68,13 @@ self.addEventListener("message", function (e) {
   if (e.data && e.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
+/* How long a page load waits for the network before the cached shell is used
+   instead. GitHub Pages answers in roughly 200 ms on wifi, so the network still
+   wins the race on any healthy connection and a new release lands at once. On
+   mobile data it loses, and the app paints out of the cache rather than showing
+   the OS's empty white web view. */
+var NET_WAIT = 600;
+
 function fromNetwork(req, cache) {
   return fetch(req).then(function (res) {
     if (res && res.ok && res.type === "basic") cache.put(req, res.clone());
@@ -83,18 +90,41 @@ self.addEventListener("fetch", function (e) {
   try { url = new URL(req.url); } catch (err) { return; }
   if (url.origin !== self.location.origin) return;   // Supabase, auth, CDNs: untouched
 
-  /* Page loads: network first, so a new release is picked up the moment the
-     phone is online. The cached shell is the offline fallback. */
+  /* Page loads. 8 Sep: this was network-FIRST with no time limit, so on mobile
+     data nothing at all was painted until index.html came back over the network -
+     2-3 s of WHITE on the installed app, on iPhone Air AND on 17 Pro, which has a
+     matching launch image. iOS drops its launch image as soon as the web view
+     exists, and an empty web view is white. The launch-image list was a real gap
+     but it was never the thing PJ was looking at for those seconds.
+
+     Now: the network still gets first refusal, but only NET_WAIT ms of it. Miss
+     that and the cached shell is handed over and paints immediately - it carries
+     its own dark #boot screen inline, so there is nothing white left to see. The
+     network request is NOT cancelled; it keeps running and refreshes the cache,
+     so the next launch has the new shell.
+
+     Why not plain cache-first: index.html registers sw.js?v=<its own version>.
+     Serve a stale shell and it registers the version already running, no update
+     is ever found, and the app can never move forward. The deadline keeps the
+     normal path (fast network, ~200 ms from Pages) exactly as it was. */
   if (req.mode === "navigate") {
     e.respondWith(
       caches.open(CACHE).then(function (c) {
-        return fromNetwork(req, c).catch(function () {
-          return c.match("./index.html").then(function (r) {
-            return r || c.match("./");
-          }).then(function (r) {
+        var net = fromNetwork(req, c);
+        return c.match("./index.html").then(function (hit) {
+          return hit || c.match("./");
+        }).then(function (hit) {
+          if (hit) return new Promise(function (resolve) {
+            var settled = false;
+            var give = function (r) { if (!settled) { settled = true; resolve(r); } };
+            var timer = setTimeout(function () { give(hit); }, NET_WAIT);
+            net.then(function (res) { clearTimeout(timer); give(res); },
+                     function ()    { clearTimeout(timer); give(hit); });
+          });
+          return net.catch(function () {
             /* respondWith(undefined) renders a blank page. If the shell was
                never cached, hand back a real page rather than nothing. */
-            return r || new Response(
+            return new Response(
               "<!doctype html><meta charset=utf-8><meta name=viewport content=\"width=device-width,initial-scale=1\">" +
               "<body style=\"margin:0;background:#0a0807;color:#A5978A;font:500 14px/1.6 -apple-system,system-ui,sans-serif;" +
               "display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:24px\">" +

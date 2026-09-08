@@ -1,5 +1,5 @@
 {
-  "v": "1.1.7",
+  "v": "1.1.8",
   "built": "2026-09-08",
-  "notes": "iOS installed app fills the screen: the status bar is reserved by iOS instead of being drawn under, which is what was leaving a strip at the bottom"
+  "notes": "iOS launch screen: iPhone Air and two iPads now have an exact-size launch image, and any device we have never seen falls back to a dark one instead of iOS's white default"
 }
