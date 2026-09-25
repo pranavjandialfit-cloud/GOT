@@ -1,5 +1,5 @@
 {
-  "v": "1.1.9",
+  "v": "1.1.10",
   "built": "2026-09-26",
-  "notes": "Workout plans inside the app: today's session on Home, your block and week under Workout, a session screen with the warm-up routine, sets/reps/load, cue and a demo photo per exercise. Shown only when a coach-activated plan exists for you (first: Mohit, SMF213); everyone else sees no change."
+  "notes": "Workout plan screen rebuilt for iPhone: full-screen session with a Back button and phone-back support, smooth scroll, and a Video button on every exercise that plays inside the app. Training mix no longer splits options like Sports Game (…) into fragments."
 }
