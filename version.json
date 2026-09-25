@@ -1,5 +1,5 @@
 {
-  "v": "1.1.8",
-  "built": "2026-09-08",
-  "notes": "iOS launch screen: iPhone Air and two iPads now have an exact-size launch image, and any device we have never seen falls back to a dark one instead of iOS's white default"
+  "v": "1.1.9",
+  "built": "2026-09-26",
+  "notes": "Workout plans inside the app: today's session on Home, your block and week under Workout, a session screen with the warm-up routine, sets/reps/load, cue and a demo photo per exercise. Shown only when a coach-activated plan exists for you (first: Mohit, SMF213); everyone else sees no change."
 }
