@@ -1,5 +1,5 @@
 {
-  "v": "1.1.12",
+  "v": "1.1.13",
   "built": "2026-09-26",
-  "notes": "Your plan explains itself: How to read (sets, A1/A2 pairs, effort, tempo, video, joint-safety note) and Your calendar (order rule, quarter-end, home trip, Durga Puja), planned pauses shown inside their week, and a pair explainer in every session that has A1/A2 or B1/B2."
+  "notes": "Sessions now open inside the app, with the header on top and tabs below. Move between all 16 sessions with the switcher or the Previous/Next cards; tap Workout again to go back to your plan. The highlighted week and session follow the calendar."
 }
