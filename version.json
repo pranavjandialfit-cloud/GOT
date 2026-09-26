@@ -1,5 +1,5 @@
 {
-  "v": "1.1.10",
+  "v": "1.1.11",
   "built": "2026-09-26",
-  "notes": "Workout plan screen rebuilt for iPhone: full-screen session with a Back button and phone-back support, smooth scroll, and a Video button on every exercise that plays inside the app. Training mix no longer splits options like Sports Game (…) into fragments."
+  "notes": "Workout plan polish: black loader while a video opens, Open in YouTube with the YouTube mark, current week and today's session outlined green, nothing under the Video button. Training mix now states your training-day total and lists every activity."
 }
