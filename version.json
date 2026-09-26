@@ -1,5 +1,5 @@
 {
-  "v": "1.1.11",
+  "v": "1.1.12",
   "built": "2026-09-26",
-  "notes": "Workout plan polish: black loader while a video opens, Open in YouTube with the YouTube mark, current week and today's session outlined green, nothing under the Video button. Training mix now states your training-day total and lists every activity."
+  "notes": "Your plan explains itself: How to read (sets, A1/A2 pairs, effort, tempo, video, joint-safety note) and Your calendar (order rule, quarter-end, home trip, Durga Puja), planned pauses shown inside their week, and a pair explainer in every session that has A1/A2 or B1/B2."
 }
